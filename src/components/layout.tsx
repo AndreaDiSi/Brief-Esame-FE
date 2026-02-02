@@ -13,6 +13,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Toaster } from "sonner"
 
 
 // Menu items.
@@ -47,6 +48,7 @@ const items = [
 function Layout() {
     return (
         <SidebarProvider>
+            <Toaster />
             <Sidebar className="min-h-full">
                 <SidebarContent>
                     <SidebarGroup>
