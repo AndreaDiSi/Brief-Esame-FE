@@ -21,27 +21,32 @@ const items = [
     {
         title: "Home",
         url: "/",
-        icon: Home,
+        
     },
     {
         title: "Accomodations",
         url: "/accomodations",
-        icon: Home,
+       
     },
     {
-        title: "Calendar",
-        url: "#",
-        icon: Calendar,
+        title: "Hosts",
+        url: "/hosts",
+       
     },
     {
-        title: "Search",
-        url: "#",
-        icon: Search,
+        title: "Tenants",
+        url: "/tenants",
+        
     },
     {
-        title: "Settings",
-        url: "#",
-        icon: Settings,
+        title: "Reservations",
+        url: "/reservations",
+        
+    },
+    {
+        title: "Feedbacks",
+        url: "/feedbacks",
+        
     },
 ]
 
@@ -58,7 +63,7 @@ function Layout() {
                                 {items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton render={<Link to={item.url} />}  className="flex gap-4">
-                                            <item.icon />
+                                            
                                             <span>{item.title}</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>

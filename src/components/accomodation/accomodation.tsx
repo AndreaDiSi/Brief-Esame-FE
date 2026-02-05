@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useAccomodation } from '../context/accomodation-context'
 import type { TAccomodation } from '../context/accomodation-context'
-import { Plus } from 'lucide-react';
 import AccomodationDialog from './accomodation-dialog';
 import { toast } from "sonner";
 import AccomodationEditDialog from './accomodation-edit-dialog';
@@ -9,7 +8,7 @@ import AccomodationViewDialog from './accomodation-view-dialog';
 
 
 const Accomodation = () => {
-    const { data, addAccomodation, deleteAccomodation } = useAccomodation();
+    const { accomodationData, addAccomodation, deleteAccomodation } = useAccomodation();
     const [searchTerm, setSearchTerm] = useState('');
     const [sortColumn, setSortColumn] = useState<string | null>(null)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -28,18 +27,18 @@ const Accomodation = () => {
         }
     };
 
-    const filteredData = data.filter(item =>
+    const filteredDataAccomodation = accomodationData.filter(item =>
         item.accomodationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.accomodationAddress.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const sortedData = [...filteredData].sort((a, b) => {
+    const sortedDataAccomodation = [...filteredDataAccomodation].sort((a, b) => {
         if (!sortColumn) return 0;
 
         const direction = sortDirection === 'asc' ? 1 : -1;
 
         // ordinamento stringhe
-        if (sortColumn === 'name' || sortColumn === 'accomodationAddress') {
+        if (sortColumn === 'accomodationName' || sortColumn === 'accomodationAddress') {
             // Nota: ho aggiunto un controllo di sicurezza per le stringhe
             const valA = (a[sortColumn as keyof TAccomodation] as string) || '';
             const valB = (b[sortColumn as keyof TAccomodation] as string) || '';
@@ -53,24 +52,21 @@ const Accomodation = () => {
         return (valueA - valueB) * direction;
     });
 
+    
 
     const handleView = (id: number) => {
-        const found = data.find(item => item.idAccomodation === id);
-        if (found){
+        const found = accomodationData.find(item => item.idAccomodation === id);
+        if (found) {
             setViewAccomodation(found)
             return found
         }
-        
-
     };
 
-
     const handleEdit = (id: number) => {
-        const found = data.find(item => item.idAccomodation === id)
+        const found = accomodationData.find(item => item.idAccomodation === id)
         if (found) {
             setEditAccomodation(found)
             return found
-
         }
         toast.success("Accomodation edited", {
             description: "The accomodation has been successfully edited.",
@@ -129,9 +125,9 @@ const Accomodation = () => {
 
                 {/* --- MOBILE VIEW: CARDS --- */}
                 <div className="block md:hidden px-6 pb-4">
-                    {sortedData.length > 0 ? (
+                    {sortedDataAccomodation.length > 0 ? (
                         <div className="space-y-4 grid grid-cols-1 mx-auto sm:grid-cols-2 gap-2">
-                            {sortedData.map((item) => (
+                            {sortedDataAccomodation.map((item) => (
                                 <div key={item.idAccomodation} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
@@ -177,8 +173,8 @@ const Accomodation = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('idAccomodation')}>
                                     ID {sortColumn === 'idAccomodation' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('name')}>
-                                    Name {sortColumn === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('accomodationName')}>
+                                    Name {sortColumn === 'accomodationName' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('accomodationAddress')}>
                                     Address {sortColumn === 'accomodationAddress' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -201,8 +197,8 @@ const Accomodation = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {sortedData.length > 0 ? (
-                                sortedData.map((item) => (
+                            {sortedDataAccomodation.length > 0 ? (
+                                sortedDataAccomodation.map((item) => (
                                     <tr key={item.idAccomodation ?? `${item.accomodationName}-${item.accomodationAddress}`} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.idAccomodation}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.accomodationName}</td>
@@ -252,7 +248,7 @@ const Accomodation = () => {
                         </div>
                     </div>
                 )}
-                
+
                 {editAccomodation && (
                     <AccomodationEditDialog
                         accomodation={editAccomodation}
@@ -273,7 +269,7 @@ const Accomodation = () => {
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                     <div className="text-sm text-gray-600">
-                        Showing {sortedData.length} of {data.length} results
+                        Showing {sortedDataAccomodation.length} of {accomodationData.length} results
                     </div>
                 </div>
             </div>

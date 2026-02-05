@@ -18,8 +18,11 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAccomodation, type TNewAccomodation } from "../context/accomodation-context"
+import { toast } from "sonner"
+import { useHost, type THost } from "../context/host-context"
+import { useState } from "react"
 
-const accomodationSchema = z.object({
+export const accomodationSchema = z.object({
     accomodationName: z.string().min(1, "Name is required").max(30, "Name is too long"),
     nRooms: z.number({ error: "There must be at least one room" }).min(1, "There must be at least one room"),
     nBedPlaces: z.number({ error: "There must be at least one bed place" }).min(1, "There must be at least one bed place"),
@@ -28,7 +31,7 @@ const accomodationSchema = z.object({
     floor: z.number().min(0, "Floor must be 0 or higher"),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
-    price: z.number().min(10, "Price must be at least 10").max(50000, "Price must be at most 50000"),
+    price: z.number({error: "This field must be a number"}).min(10, "Price must be at least 10").max(50000, "Price must be at most 50000"),
 }).refine(
     (data) => new Date(data.endDate) > new Date(data.startDate),
     {
@@ -63,19 +66,41 @@ function AccomodationDialog() {
             hostId: formData.hostId,
             accomodationAddress: formData.address,
             floor: formData.floor,
-            startDate: formData.startDate,  
-            endDate: formData.endDate,        
+            startDate: formData.startDate,
+            endDate: formData.endDate,
             price: formData.price,
         }
 
-        console.log("Sending payload:", payload);  // debug
+       
 
         await addAccomodation(payload);
+        reset();
+        toast.success("Accomodation created", {
+            description: `${formData.accomodationName} ${formData.address} has been successfully added.`,
+        })
 
-        
     }
 
     const start = watch("startDate")
+
+    const { data } = useHost();
+    const [searchTerm, setSearchTerm] = useState('');
+    
+
+
+    const filteredDataHost = data.filter(item => {
+        if (searchTerm === '') {
+            return null;
+        }
+        const idHosttoString = item.idHost.toString();
+        return (
+            item.hostName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            idHosttoString.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
+
+
 
     return (
         <Dialog>
@@ -109,7 +134,25 @@ function AccomodationDialog() {
 
                         <Field>
                             <Label>Host ID</Label>
-                            <Input type="number" {...register("hostId", { valueAsNumber: true })} min={1} />
+
+                            <input
+                                type="text"
+                                placeholder="Search by name or ID"
+                                className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <select
+                                className="border border-black"
+                                {...register("hostId", { valueAsNumber: true })}
+                            >
+                                <option value="">-- Select an Host --</option>
+                                {filteredDataHost.map(host => (
+                                    <option key={host.idHost} value={host.idHost}>
+                                        {host.hostName} {host.surname} (ID: {host.idHost})
+                                    </option>
+                                ))}
+                            </select>
                             {errors.hostId && <p className="text-red-500">{errors.hostId.message}</p>}
                         </Field>
 
@@ -145,7 +188,7 @@ function AccomodationDialog() {
 
                         <Field>
                             <Label>Price</Label>
-                            <Input type="number" {...register("price", { valueAsNumber: true })} min={10} />
+                            <Input type="number" {...register("price", { valueAsNumber: true })} min={10} value={10}  />
                             {errors.price && <p className="text-red-500">{errors.price.message}</p>}
                         </Field>
                     </FieldGroup>

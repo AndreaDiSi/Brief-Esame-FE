@@ -1,13 +1,14 @@
 // accomodation-context.tsx
 import { createContext, useContext, useEffect, useState } from "react";
-import type { Host } from "./host-context";
+import type { THost } from "./host-context";
 import { toast } from "sonner";
+import type { TAccomodationWithNReservations } from "../accomodation/best-accomodation";
 
 export type TAccomodation = {
     idAccomodation: number;
     accomodationName: string;
     nrooms: number;
-    Host?: Host;
+    Host?: THost;
     hostId: number;
     nbedPlaces: number;
     floor: number;
@@ -24,10 +25,11 @@ interface AccomodationProviderProps {
 }
 
 export interface AccomodationContextType {
-    data: TAccomodation[];
+    accomodationData: TAccomodation[];
     addAccomodation: (newAccomodation: TNewAccomodation) => Promise<void>;
     deleteAccomodation: (id: number) => Promise<void>;
     updateAccomodation: (id: number, updated: TNewAccomodation) => Promise<void>;
+    fetchBestAccomodation: () => Promise<TAccomodationWithNReservations>;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -41,12 +43,14 @@ export const useAccomodation = () => {
     return context;
 }
 
+
+
 export const AccomodationProvider = ({
     children
 }: AccomodationProviderProps) => {
 
-    //TAccomodation is the type of the data fetched
-    const [data, setData] = useState<TAccomodation[]>([]);
+
+    const [accomodationData, setData] = useState<TAccomodation[]>([]);
 
     useEffect(() => {
         const fetchAccomodations = async () => {
@@ -81,9 +85,6 @@ export const AccomodationProvider = ({
             if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 
             const newAccomodationResponse = await res.json();
-            toast.success("Accomodation added", {
-                description: "The accomodation has been successfully added.",
-            })
 
             setData(prev => [...prev, newAccomodationResponse]);
 
@@ -93,7 +94,7 @@ export const AccomodationProvider = ({
     }
 
     const deleteAccomodation = async (id: number) => {
-        const backup = data;
+        const backup = accomodationData;
 
         // optimistic remove
         setData(prev =>
@@ -133,10 +134,20 @@ export const AccomodationProvider = ({
         }
     }
 
+    const fetchBestAccomodation = async () => {
+        const res = await fetch(`${API_URL}/bestAccomodations`);
+        if (!res.ok) throw new Error("Failed to fetch stats");
+
+        const best: TAccomodationWithNReservations = await res.json();
+        console.log("Best Accomodation:", best);
+        return best;
+    };
+
+
 
 
     return (
-        <AccomodationContext.Provider value={{ data, addAccomodation, deleteAccomodation, updateAccomodation }}>
+        <AccomodationContext.Provider value={{ accomodationData, addAccomodation, deleteAccomodation, updateAccomodation, fetchBestAccomodation }}>
             {children}
         </AccomodationContext.Provider>
     );

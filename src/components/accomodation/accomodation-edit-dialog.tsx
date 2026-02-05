@@ -18,24 +18,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useAccomodation, type TAccomodation, type TNewAccomodation } from "../context/accomodation-context"
 import { toast } from "sonner"
 import { useEffect } from "react"
+import { accomodationSchema } from "./accomodation-dialog"
+import { useHost } from "../context/host-context"
 
-const accomodationSchema = z.object({
-    accomodationName: z.string().min(1, "Name is required").max(30, "Name is too long"),
-    nRooms: z.number({ error: "There must be at least one room" }).min(1, "There must be at least one room"),
-    nBedPlaces: z.number({ error: "There must be at least one bed place" }).min(1, "There must be at least one bed place"),
-    hostId: z.number({ error: "Host ID is required" }).min(1, "Host ID must be at least 1"),
-    address: z.string().min(6, "Address is required").max(100, "Address is too long"),
-    floor: z.number().min(0, "Floor must be 0 or higher"),
-    startDate: z.string().min(1, "Start date is required"),
-    endDate: z.string().min(1, "End date is required"),
-    price: z.number().min(10, "Price must be at least 10").max(50000, "Price must be at most 50000"),
-}).refine(
-    (data) => new Date(data.endDate) > new Date(data.startDate),
-    {
-        message: "End date must be after start date",
-        path: ["endDate"],
-    }
-);
 
 type AccomodationFormData = z.infer<typeof accomodationSchema>;
 
@@ -72,7 +57,7 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
                 accomodationName: accomodation.accomodationName,
                 nRooms: accomodation.nrooms,
                 nBedPlaces: accomodation.nbedPlaces,
-                hostId: accomodation.hostId || 1,
+                hostId: accomodation.hostId,
                 address: accomodation.accomodationAddress,
                 floor: accomodation.floor,
                 startDate: formatDateForInput(accomodation.startDate),
@@ -106,6 +91,10 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
 
     const start = watch("startDate")
 
+
+    const { data } = useHost();
+    
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent>
@@ -128,12 +117,6 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
                             <Label>Rooms</Label>
                             <Input type="number" {...register("nRooms", { valueAsNumber: true })} min={1} />
                             {errors.nRooms && <p className="text-red-500">{errors.nRooms.message}</p>}
-                        </Field>
-
-                        <Field>
-                            <Label>Host ID</Label>
-                            <Input type="number" {...register("hostId", { valueAsNumber: true })} min={1} />
-                            {errors.hostId && <p className="text-red-500">{errors.hostId.message}</p>}
                         </Field>
 
                         <Field>
