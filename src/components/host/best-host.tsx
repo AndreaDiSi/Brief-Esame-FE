@@ -40,7 +40,7 @@ const BestHost = () => {
                     <DialogTrigger render=
                         {<Button onClick={handleGetBest}
                             disabled={loading}
-                            className={`flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg font-medium transition-all hover:bg-amber-600 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-200`}
+                            className={`flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-200`}
                         >
                             <Trophy size={18} />
                             {loading ? "Calculating..." : "Get Best Host"}

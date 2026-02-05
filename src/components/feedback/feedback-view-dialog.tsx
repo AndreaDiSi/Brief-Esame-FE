@@ -12,7 +12,7 @@ const FeedbackViewDialog = ({ feedback, open, onClose }: Props) => {
 
     if (!open) return null;
 
-    // Helper per trovare i dettagli della prenotazione
+    
     const reservation = reservations.find(r => r.idReservation === feedback.idReservation);
 
     return (

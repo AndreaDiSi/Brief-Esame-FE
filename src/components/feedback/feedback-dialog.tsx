@@ -12,16 +12,17 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea" // Assumendo tu abbia un componente Textarea
+import { Textarea } from "@/components/ui/textarea"
 import { Plus } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFeedback, type TNewFeedback } from "../context/feedback-context"
 import { useReservation } from "../context/reservation-context"
-import { toast } from "sonner"
+import { ReservationAutocomplete } from "../reservation/autocomplete-reservation"
 import { feedbackSchema } from "./feedback-edit-dialog"
 import { useState } from "react"
+
 
 
 type FeedbackFormData = z.infer<typeof feedbackSchema>;
@@ -30,6 +31,7 @@ function FeedbackDialog() {
     const { addFeedback } = useFeedback();
     const { reservations } = useReservation();
     const [searchTerm, setSearchTerm] = useState('');
+
 
     const form = useForm<FeedbackFormData>({
         resolver: zodResolver(feedbackSchema),
@@ -50,24 +52,24 @@ function FeedbackDialog() {
     } = form
 
     const onSubmit = async (formData: FeedbackFormData) => {
-        const payload: TNewFeedback = {
-            title: formData.title,
-            textFeedback: formData.textFeedback,
-            points: formData.points,
-            idReservation: formData.idReservation,
+        try {
+            const payload: TNewFeedback = {
+                title: formData.title,
+                textFeedback: formData.textFeedback,
+                points: formData.points,
+                idReservation: formData.idReservation,
+            }
+
+            await addFeedback(payload);
+            reset();
+
+        } catch (error) {
+            console.error("Error adding feedback:", error);
         }
-
-        await addFeedback(payload);
-
-        toast.success("Feedback submitted", {
-            description: "Thank you! Your feedback has been recorded.",
-        })
-
-        reset();
     }
 
     const filteredDataReservation = reservations.filter(item => {
-        
+
         if (searchTerm === '') {
             return null;
         }
@@ -120,27 +122,20 @@ function FeedbackDialog() {
                                 )}
                             </Field>
 
-                            <Field className="col-span-2">
-                                <Label>Reservation</Label>
-                                <input
-                                    type="text"
-                                    placeholder="Search by name or ID"
-                                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                            <Field>
+                                <Label>Reservation ID</Label>
+                                <ReservationAutocomplete
+                                    onSelect={(reservation) => {
+
+                                        form.setValue("idReservation", reservation.idReservation)
+                                    }}
+
                                 />
-                                <select
-                                    {...register("idReservation", { valueAsNumber: true })}
-                                    className="border border-black"
-                                >
-                                    <option value="">-- Select a Reservation --</option>
-                                    {filteredDataReservation.map(reservation => (
-                                        <option key={reservation.idReservation} value={reservation.idReservation}>
-                                            (ID: {reservation.idReservation})
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.idReservation && <p className="text-red-500 text-sm">{errors.idReservation.message}</p>}
+                                <input type="hidden" {...register("idReservation", { valueAsNumber: true })} />
+
+                                {errors.idReservation && <p className="text-red-500">{errors.idReservation.message}</p>}
+
+
                             </Field>
                         </div>
 
@@ -158,7 +153,15 @@ function FeedbackDialog() {
                     </FieldGroup>
 
                     <DialogFooter className="mt-6">
-                        <DialogClose render={<Button variant="outline">Cancel</Button>} />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                reset();
+                            }}
+                        >
+                            Cancel
+                        </Button>
                         <Button
                             type="submit"
                             disabled={isSubmitting}

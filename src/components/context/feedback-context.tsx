@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import {toast} from "sonner";
 
 export type TFeedback = {
     idFeed: number;
@@ -44,6 +45,7 @@ export const FeedbackProvider = ({ children }: FeedbackProviderProps) => {
                 setData(json);
             } catch (error) {
                 console.error("Error fetching feedback:", error);
+                toast.error("Failed to load feedback");
             }
         }
         fetchFeedback();
@@ -58,11 +60,19 @@ export const FeedbackProvider = ({ children }: FeedbackProviderProps) => {
                 },
                 body: JSON.stringify(newFeedback),
             });
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
+            
             const newFeedbackResponse: TFeedback = await res.json();
-            setData(prev => [...prev, newFeedbackResponse]);
+            setData(prev => [newFeedbackResponse, ...prev]);
+            toast.success("Feedback added successfully!");
         } catch (error) {
             console.error("Error adding feedback:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to add feedback");
+            throw error;
         }
     }
 
@@ -71,10 +81,18 @@ export const FeedbackProvider = ({ children }: FeedbackProviderProps) => {
             const res = await fetch(`${API_URL}/feedback/${id}`, {
                 method: "DELETE",
             });
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
+            
             setData(prev => prev.filter(item => item.idFeed !== id));
+            toast.success("Feedback deleted successfully!");
         } catch (error) {
             console.error("Error deleting feedback:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to delete feedback");
+            throw error;
         }
     }
 
@@ -87,13 +105,21 @@ export const FeedbackProvider = ({ children }: FeedbackProviderProps) => {
                 },
                 body: JSON.stringify(updated),
             });
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
+            
             const updatedResponse: TFeedback = await res.json();
             setData(prev => prev.map(item => 
                 item.idFeed === id ? updatedResponse : item
             ));
+            toast.success("Feedback updated successfully!");
         } catch (error) {
             console.error("Error updating feedback:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to update feedback");
+            throw error;
         }
     }
 

@@ -6,7 +6,7 @@ interface ReservationAutocompleteProps {
   onSelect: (reservation: TReservation) => void
 }
 
-const ReservationAutocomplete = ({ onSelect }: ReservationAutocompleteProps) => {
+export const ReservationAutocomplete = ({ onSelect }: ReservationAutocompleteProps) => {
   const { reservations } = useReservation()
   const [query, setQuery] = useState("")
   const [open, setOpen] = useState(false)

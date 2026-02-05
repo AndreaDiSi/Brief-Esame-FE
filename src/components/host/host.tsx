@@ -21,7 +21,7 @@ const Host = () => {
     const [confirmId, setConfirmId] = useState<number | null>(null)
     const [editHost, setEditHost] = useState<THost | null>(null)
     const [viewHost, setViewHost] = useState<THost | null>(null)
-    
+
     const handleSort = (column: string) => {
         if (sortColumn === column) {
             setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
@@ -34,19 +34,18 @@ const Host = () => {
     const filteredData = data.filter(item =>
         item.hostName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.surname.toLowerCase().includes(searchTerm.toLowerCase()) 
-        
-        
+        item.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.idHost.toString().includes(searchTerm)
     )
-    
+
     const sortedData = [...filteredData].sort((a, b) => {
         if (!sortColumn) return 0
 
         const direction = sortDirection === 'asc' ? 1 : -1
 
-        // ordinamento boolean
-        if (sortColumn === 'isSuperhost') {
-            return ((a.superhost === b.superhost) ? 0 : a.superhost ? 1 : -1) * direction
+        if (sortColumn === 'superhost') {
+            
+           return Number(a.superhost) - Number(b.superhost) * direction;
         }
 
         // ordinamento stringhe
@@ -84,13 +83,11 @@ const Host = () => {
         if (confirmId === null) return
         await deleteHost(confirmId)
         setConfirmId(null)
-        toast.success("Host deleted", {
-            description: "The host has been successfully removed.",
-        })
+
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <div className=" mx-auto p-4 md:p-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-1">
                     <h2 className="text-2xl font-bold text-gray-800">Hosts</h2>
@@ -117,7 +114,7 @@ const Host = () => {
                             <option value="">Sort by...</option>
                             <option value="hostName">Name</option>
                             <option value="email">Email</option>
-                            <option value="isSuperhost">Superhost</option>
+                            <option value="superhost">Superhost</option>
                         </select>
                     </div>
                 </div>
@@ -201,8 +198,8 @@ const Host = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('hostAddress')}>
                                     Address {sortColumn === 'hostAddress' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('isSuperhost')}>
-                                    Superhost {sortColumn === 'isSuperhost' && (sortDirection === 'asc' ? '↑' : '↓')}
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200" onClick={() => handleSort('superhost')}>
+                                    Superhost {sortColumn === 'superhost' && (sortDirection === 'asc' ? '↑' : '↓')}
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                     Actions

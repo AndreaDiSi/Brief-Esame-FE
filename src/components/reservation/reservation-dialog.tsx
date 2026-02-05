@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useReservation } from "../context/reservation-context"
 import { useTenant } from "../context/tenant-context"
 import { useAccomodation } from "../context/accomodation-context"
-import { toast } from "sonner"
+
 import { useState } from "react"
 import TenantAutocomplete from "../tenant/autocomplete-tenant"
 import AccomodationAutocomplete from "../accomodation/autocomplete-accomodation"
@@ -31,7 +31,13 @@ export const reservationSchema = z.object({
     reservationEndDate: z.string().min(1, "End date is required"),
     idTenant: z.number({ error: "Please select a Tenant" }).min(1, "Tenant is required"),
     idAccomodation: z.number({ error: "Please select an Accomodation" }).min(1, "Accomodation is required"),
-});
+}).refine(
+    (data) => new Date(data.reservationEndDate) > new Date(data.reservationStartDate),
+    {
+        message: "End date must be after start date",
+        path: ["endDate"],
+    }
+);
 
 export type ReservationFormData = z.infer<typeof reservationSchema>;
 
@@ -58,7 +64,7 @@ function ReservationDialog() {
     const onSubmit = async (formData: ReservationFormData) => {
         try {
             await addReservation(formData);
-            setOpen(false); // chiudi il dialog
+            setOpen(false);
         } catch (error) {
             console.error("Errore durante il salvataggio:", error);
         }

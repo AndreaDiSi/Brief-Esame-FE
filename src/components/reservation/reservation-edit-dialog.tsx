@@ -66,7 +66,7 @@ function ReservationEditDialog({ reservation, open, onClose }: Props) {
 
     const onSubmit = async (formData: ReservationFormData) => {
         if (!selectedTenant || !selectedAccomodation) {
-            toast.error("Please select a tenant and an accomodation.");
+            
             return;
         }
 
@@ -79,13 +79,10 @@ function ReservationEditDialog({ reservation, open, onClose }: Props) {
 
         try {
             await updateReservation(reservation.idReservation, payload);
-            toast.success("Reservation updated", {
-                description: `Booking for ${selectedTenant.tenantName} ${selectedTenant.surname} has been updated.`,
-            });
             onClose(); 
         } catch (error) {
             console.error(error);
-            toast.error("Error updating reservation");
+            
         }
     };
 

@@ -14,6 +14,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from '@base-ui/react';
+import TenantAutocomplete from '../tenant/autocomplete-tenant';
 
 export const LastReservation = () => {
     const { tenantData } = useTenant();
@@ -22,14 +23,17 @@ export const LastReservation = () => {
     const [lastRes, setLastRes] = useState<TReservation | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const {
-        register,
-        watch,
-        formState: { errors },
-    } = useForm<ReservationFormData>({
+    const form = useForm<ReservationFormData>({
         resolver: zodResolver(reservationSchema),
         mode: "onChange",
-    });
+    })
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+        watch
+    } = form
 
 
     const selectedTenantId = watch("idTenant");
@@ -52,7 +56,7 @@ export const LastReservation = () => {
         }
 
         setLoading(true);
-        try {
+        try {   
             const data = await getLastReservation(Number(selectedTenantId));
             if (data) {
                 setLastRes(data);
@@ -77,32 +81,18 @@ export const LastReservation = () => {
 
                 <FieldGroup className="space-y-4">
                     <Field>
-                        <Label className="text-gray-600 text-sm mb-1 ml-1">Search Tenant</Label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-3 text-gray-400" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Name, surname or ID..."
-                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
-                                value={searchTermTenant}
-                                onChange={(e) => setSearchTermTenant(e.target.value)}
-                            />
-                        </div>
+                        <Label>Tenant ID</Label>
+                        <TenantAutocomplete
+                            onSelect={(tenant) => {
+                                form.setValue("idTenant", tenant.idTenant)
+                            }}
+                        />
+                        <input type="hidden" {...register("idTenant", { valueAsNumber: true })} />
+
+                        {errors.idTenant && <p className="text-red-500">{errors.idTenant.message}</p>}
+
+
                     </Field>
-
-                    <select
-                        className="w-full p-2.5 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-indigo-500"
-                        {...register("idTenant", { valueAsNumber: true })}
-                    >
-                        <option value="">-- Select a Tenant --</option>
-                        {filteredDataTenant.map(tenant => (
-                            <option key={tenant.idTenant} value={tenant.idTenant}>
-                                {tenant.tenantName} {tenant.surname} (ID: {tenant.idTenant})
-                            </option>
-                        ))}
-                    </select>
-
-
                 </FieldGroup>
 
                 <Dialog>
@@ -110,7 +100,7 @@ export const LastReservation = () => {
                         <Button
                             onClick={handleGetLast}
                             disabled={loading || !selectedTenantId}
-                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50 shadow-lg shadow-indigo-100"
+                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-indigo-700 text-white rounded-lg font-medium transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50 shadow-lg shadow-indigo-100"
                         >
                             {loading ? "Searching..." : "Fetch Last Reservation"}
                         </Button>

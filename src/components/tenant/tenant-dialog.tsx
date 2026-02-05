@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTenant, type TNewTenant } from "../context/tenant-context"
-import { toast } from "sonner"
+
 
 const tenantSchema = z.object({
     tenantName: z.string().min(1, "Name is required").max(20, "Name is too long"),
@@ -58,10 +58,6 @@ function TenantDialog() {
         }
 
         await addTenant(payload);
-        
-        toast.success("Tenant created", {
-            description: `${formData.tenantName} ${formData.surname} has been successfully added.`,
-        })
         
         reset();
         

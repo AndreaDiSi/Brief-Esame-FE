@@ -76,9 +76,7 @@ function HostEditDialog({ host, open, onClose }: HostEditDialogProps) {
         console.log("Sending payload:", payload)
 
         await updateHost(host.idHost, payload)
-        toast.success("Host updated", {
-            description: `${formData.hostName} ${formData.surname} has been successfully updated.`,
-        })
+        
         onClose()
     }
 

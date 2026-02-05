@@ -1,4 +1,4 @@
-// AccomodationEditDialog.tsx
+
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAccomodation, type TAccomodation, type TNewAccomodation } from "../context/accomodation-context"
-import { toast } from "sonner"
+
 import { useEffect } from "react"
 import { accomodationSchema } from "./accomodation-dialog"
 import { useHost } from "../context/host-context"
@@ -30,13 +30,11 @@ interface AccomodationEditDialogProps {
     onClose: () => void
 }
 
-// Formatta la data da TIMESTAMP a "yyyy-MM-dd" per l'input type=date
-function formatDateForInput(dateString: string): string {
-    return dateString.split("T")[0]
-}
 
 function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEditDialogProps) {
     const { updateAccomodation } = useAccomodation()
+    
+
     const form = useForm<AccomodationFormData>({
         resolver: zodResolver(accomodationSchema),
         mode: "onChange",
@@ -50,7 +48,7 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
         watch,
     } = form
 
-    // Quando il dialog si apre, popola il form con i dati esistenti
+    
     useEffect(() => {
         if (open && accomodation) {
             reset({
@@ -60,8 +58,8 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
                 hostId: accomodation.hostId,
                 address: accomodation.accomodationAddress,
                 floor: accomodation.floor,
-                startDate: formatDateForInput(accomodation.startDate),
-                endDate: formatDateForInput(accomodation.endDate),
+                startDate: accomodation.startDate,
+                endDate: accomodation.endDate,
                 price: accomodation.price,
             })
         }
@@ -83,9 +81,7 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
         console.log("Sending payload:", payload)
 
         await updateAccomodation(accomodation.idAccomodation, payload)
-        toast.success("Accomodation updated", {
-            description: `${formData.accomodationName} has been successfully updated.`,
-        })
+        
         onClose()
     }
 
@@ -162,6 +158,7 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
                             type="submit"
                             disabled={isSubmitting}
                             className="bg-primary"
+                            
                         >
                             Save Changes
                         </Button>

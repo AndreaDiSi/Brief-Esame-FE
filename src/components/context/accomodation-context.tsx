@@ -1,4 +1,3 @@
-// accomodation-context.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import type { THost } from "./host-context";
 import { toast } from "sonner";
@@ -43,36 +42,25 @@ export const useAccomodation = () => {
     return context;
 }
 
-
-
-export const AccomodationProvider = ({
-    children
-}: AccomodationProviderProps) => {
-
-
+export const AccomodationProvider = ({ children }: AccomodationProviderProps) => {
     const [accomodationData, setData] = useState<TAccomodation[]>([]);
 
     useEffect(() => {
         const fetchAccomodations = async () => {
             try {
                 const res = await fetch(`${API_URL}/accomodations`);
-
                 if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-
-                // Convert data to json
                 const json: TAccomodation[] = await res.json();
                 setData(json);
-
             } catch (error) {
                 console.error("Error fetching accomodations:", error);
+                toast.error("Failed to load accomodations");
             }
         }
         fetchAccomodations();
     }, []);
 
-    //ha senso mettere che addAccomodation accetta TnewAccomodation? e poi fare il cast a TAccomodation?
     const addAccomodation = async (newAccomodation: TNewAccomodation) => {
-
         try {
             const res = await fetch(`${API_URL}/accomodations`, {
                 method: "POST",
@@ -82,36 +70,38 @@ export const AccomodationProvider = ({
                 body: JSON.stringify(newAccomodation),
             });
 
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
 
-            const newAccomodationResponse:TAccomodation = await res.json();
-            console.log(newAccomodationResponse)
+            const newAccomodationResponse: TAccomodation = await res.json();
             setData(prev => [newAccomodationResponse, ...prev]);
-            
+            toast.success("Accomodation added successfully!");
         } catch (error) {
             console.error("Error adding accomodation:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to add accomodation");
+            throw error;
         }
     }
 
     const deleteAccomodation = async (id: number) => {
-        const backup = accomodationData;
-
-        
-        setData(prev =>
-            prev.filter(item => item.idAccomodation !== id)
-        );
-
         try {
             const res = await fetch(`${API_URL}/accomodations/${id}`, {
                 method: "DELETE",
             });
 
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
 
+            setData(prev => prev.filter(item => item.idAccomodation !== id));
+            toast.success("Accomodation deleted successfully!");
         } catch (error) {
-
-            console.error("Delete failed, rollback:", error);
-            setData(backup); // ripristina
+            console.error("Error deleting accomodation:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to delete accomodation");
+            throw error;
         }
     };
 
@@ -124,27 +114,41 @@ export const AccomodationProvider = ({
                 },
                 body: JSON.stringify(updated),
             });
-            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || `HTTP error: ${res.status}`);
+            }
+            
             const updatedResponse: TAccomodation = await res.json();
             setData(prev => prev.map(item =>
                 item.idAccomodation === id ? updatedResponse : item
             ));
+            toast.success("Accomodation updated successfully!");
         } catch (error) {
             console.error("Error updating accomodation:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to update accomodation");
+            throw error;
         }
     }
 
     const fetchBestAccomodation = async () => {
-        const res = await fetch(`${API_URL}/bestAccomodations`);
-        if (!res.ok) throw new Error("Failed to fetch stats");
+        try {
+            const res = await fetch(`${API_URL}/bestAccomodations`);
+            
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(errorText || "Failed to fetch best accomodation");
+            }
 
-        const best: TAccomodationWithNReservations = await res.json();
-        console.log("Best Accomodation:", best);
-        return best;
+            const best: TAccomodationWithNReservations = await res.json();
+            return best;
+        } catch (error) {
+            console.error("Error fetching best accomodation:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to fetch best accomodation");
+            throw error;
+        }
     };
-
-
-
 
     return (
         <AccomodationContext.Provider value={{ accomodationData, addAccomodation, deleteAccomodation, updateAccomodation, fetchBestAccomodation }}>

@@ -15,10 +15,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
+
 import { useEffect } from "react"
 import { useFeedback, type TFeedback, type TNewFeedback } from "../context/feedback-context"
 import { useReservation } from "../context/reservation-context"
+import { useNavigate} from "react-router"
 
 export const feedbackSchema = z.object({
     title: z.string().min(1, "Title is required").max(100, "Title is too long"),
@@ -38,6 +39,7 @@ interface FeedbackEditDialogProps {
 function FeedbackEditDialog({ feedback, open, onClose }: FeedbackEditDialogProps) {
     const { updateFeedback } = useFeedback()
     const { reservations } = useReservation()
+    const navigate = useNavigate()
 
     const form = useForm<FeedbackFormData>({
         resolver: zodResolver(feedbackSchema),
@@ -72,10 +74,6 @@ function FeedbackEditDialog({ feedback, open, onClose }: FeedbackEditDialogProps
         }
 
         await updateFeedback(feedback.idFeed, payload)
-        
-        toast.success("Feedback updated", {
-            description: "The feedback has been successfully modified.",
-        })
         onClose()
     }
 
@@ -134,6 +132,7 @@ function FeedbackEditDialog({ feedback, open, onClose }: FeedbackEditDialogProps
                             type="submit"
                             disabled={isSubmitting}
                             className="bg-primary text-white"
+                            onClick={() => navigate("/feedbacks")}
                         >
                             {isSubmitting ? "Updating..." : "Save Changes"}
                         </Button>

@@ -1,4 +1,4 @@
-// AccomodationDialog.tsx
+
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -18,10 +18,10 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAccomodation, type TNewAccomodation } from "../context/accomodation-context"
-import { toast } from "sonner"
 import { useHost, type THost } from "../context/host-context"
 import { useState } from "react"
 import HostAutocomplete from "../host/autocomplete-host"
+
 
 export const accomodationSchema = z.object({
     accomodationName: z.string().min(1, "Name is required").max(30, "Name is too long"),
@@ -45,6 +45,8 @@ type AccomodationFormData = z.infer<typeof accomodationSchema>;
 
 function AccomodationDialog() {
     const { addAccomodation } = useAccomodation();
+    
+
     const form = useForm<AccomodationFormData>({
         resolver: zodResolver(accomodationSchema),
         mode: "onChange",
@@ -59,7 +61,7 @@ function AccomodationDialog() {
     } = form
 
     const onSubmit = async (formData: AccomodationFormData) => {
-        // Formatta le date come TIMESTAMP che il backend si aspetta
+        
         const payload: TNewAccomodation = {
             accomodationName: formData.accomodationName,
             nrooms: formData.nRooms,
@@ -76,11 +78,8 @@ function AccomodationDialog() {
 
         await addAccomodation(payload);
         reset();
-        
-        toast.success("Accomodation created", {
-            description: `${formData.accomodationName} ${formData.address} has been successfully added.`,
-        })
 
+        
     }
 
     const start = watch("startDate")
@@ -138,8 +137,9 @@ function AccomodationDialog() {
                             <Label>Host ID</Label>
                             <HostAutocomplete
                                 onSelect={(host) => {
-                                    
-                                    form.setValue("hostId", host.idHost)}}
+
+                                    form.setValue("hostId", host.idHost)
+                                }}
 
                             />
                             <input type="hidden" {...register("hostId", { valueAsNumber: true })} />
@@ -192,6 +192,7 @@ function AccomodationDialog() {
                             type="submit"
                             disabled={isSubmitting}
                             className="bg-primary"
+                            
                         >
                             Save
                         </Button>

@@ -34,7 +34,8 @@ const Tenant = () => {
     const filteredData = tenantData.filter(item =>
         item.tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.surname.toLowerCase().includes(searchTerm.toLowerCase())
+        item.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.idTenant.toString().includes(searchTerm.toLowerCase())
     )
 
     const sortedData = [...filteredData].sort((a, b) => {
@@ -77,13 +78,11 @@ const Tenant = () => {
         if (confirmId === null) return
         await deleteTenant(confirmId)
         setConfirmId(null)
-        toast.success("Tenant deleted", {
-            description: "The tenant has been successfully removed.",
-        })
+        
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <div className=" mx-auto p-4 md:p-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-1">
                     <h2 className="text-2xl font-bold text-gray-800">Tenants</h2>

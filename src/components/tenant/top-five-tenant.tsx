@@ -43,7 +43,7 @@ const TopTenants = () => {
                         <Button
                             onClick={handleGetBest}
                             disabled={loading}
-                            className={`flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all hover:bg-amber-600 active:scale-95 disabled:opacity-50 shadow-lg shadow-amber-200`}
+                            className={`flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all active:scale-95 hover:bg-indigo-700 disabled:opacity-50 shadow-lg shadow-amber-200`}
                         >
                             <Trophy size={18} />
                             {loading ? "Calculating..." : "Get Best Tenants"}
@@ -54,7 +54,7 @@ const TopTenants = () => {
                             {data.map((tenant) => (
                                 <div
                                     key={tenant.idTenant}
-                                    className="animate-in fade-in slide-in-from-top-4 duration-500 bg-white border-2 border-emerald-100 rounded-2xl overflow-hidden shadow-xl text-sm h-50 flex flex-col justify-center"
+                                    className="animate-in fade-in slide-in-from-top-4 duration-500 bg-white border-2 border-emerald-100 rounded-2xl  overflow-hidden shadow-xl text-sm h-50 flex flex-col justify-center"
                                 >
                                     <div className="bg-emerald-600 p-4 flex justify-between items-center">
                                         <span className="text-white text-xs font-bold uppercase tracking-wider">

@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useHost, type TNewHost } from "../context/host-context"
-import { toast } from "sonner"
+
 
 const hostSchema = z.object({
     hostName: z.string().min(1, "Name is required").max(20, "Name is too long"),
@@ -62,9 +62,7 @@ function HostDialog() {
         console.log("Sending payload:", payload);
 
         await addHost(payload);
-        toast.success("Host created", {
-            description: `${formData.hostName} ${formData.surname} has been successfully added.`,
-        })
+        
         reset();
     }
 

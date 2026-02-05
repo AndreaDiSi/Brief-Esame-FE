@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
 import { useEffect } from "react"
 import { type TTenant, useTenant, type TNewTenant } from "../context/tenant-context"
 
@@ -47,7 +46,7 @@ function TenantEditDialog({ tenant, open, onClose }: TenantEditDialogProps) {
         reset,
     } = form
 
-    // Carica i dati del tenant nel form quando il dialog si apre
+   
     useEffect(() => {
         if (open && tenant) {
             reset({
@@ -69,9 +68,7 @@ function TenantEditDialog({ tenant, open, onClose }: TenantEditDialogProps) {
 
         await updateTenant(tenant.idTenant, payload)
         
-        toast.success("Tenant updated", {
-            description: `${formData.tenantName} ${formData.surname} has been successfully updated.`,
-        })
+        
         onClose()
     }
 

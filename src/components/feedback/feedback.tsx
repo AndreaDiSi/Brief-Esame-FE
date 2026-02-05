@@ -37,9 +37,9 @@ const Feedback = () => {
     const filteredData = feedbackData.filter(item => {
         const title = item.title || "";
         const textFeedback = item.textFeedback || "";
-
+        
         return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            textFeedback.toLowerCase().includes(searchTerm.toLowerCase());
+            textFeedback.toLowerCase().includes(searchTerm.toLowerCase()) 
     });
 
     const sortedData = [...filteredData].sort((a, b) => {
@@ -47,14 +47,14 @@ const Feedback = () => {
 
         const direction = sortDirection === 'asc' ? 1 : -1
 
-        // Ordinamento stringhe (titolo e testo)
+        
         if (sortColumn === 'title' || sortColumn === 'textFeedback') {
             const valA = (a[sortColumn as keyof TFeedback] as string) || ''
             const valB = (b[sortColumn as keyof TFeedback] as string) || ''
             return valA.localeCompare(valB) * direction
         }
 
-        // Ordinamento numerico (ID, Points, ReservationID)
+       
         const valueA = a[sortColumn as keyof TFeedback] as number
         const valueB = b[sortColumn as keyof TFeedback] as number
         return (valueA - valueB) * direction
@@ -84,7 +84,7 @@ const Feedback = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <div className="mx-auto p-4 md:p-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-1">
                     <h2 className="text-2xl font-bold text-gray-800">Feedbacks</h2>

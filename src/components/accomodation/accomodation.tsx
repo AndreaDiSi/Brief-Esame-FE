@@ -20,9 +20,9 @@ const Accomodation = () => {
     const [sortColumn, setSortColumn] = useState<string | null>(null)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
     const [confirmId, setConfirmId] = useState<number | null>(null)
-    const [editAccomodation, setEditAccomodation] = useState<TAccomodation | null>(null)  // ← stato per il dialog di edit
+    const [editAccomodation, setEditAccomodation] = useState<TAccomodation | null>(null)
     const [viewAccomodation, setViewAccomodation] = useState<TAccomodation | null>(null);
-
+    const [isOpen, setIsOpen] = useState(false);
 
 
     const handleSort = (column: string) => {
@@ -36,7 +36,8 @@ const Accomodation = () => {
 
     const filteredDataAccomodation = accomodationData.filter(item =>
         item.accomodationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.accomodationAddress.toLowerCase().includes(searchTerm.toLowerCase())
+        item.accomodationAddress.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.hostId.toString().includes(searchTerm.toLowerCase())
     );
 
     const sortedDataAccomodation = [...filteredDataAccomodation].sort((a, b) => {
@@ -46,7 +47,7 @@ const Accomodation = () => {
 
         // ordinamento stringhe
         if (sortColumn === 'accomodationName' || sortColumn === 'accomodationAddress') {
-            // Nota: ho aggiunto un controllo di sicurezza per le stringhe
+            // controllo di sicurezza per le stringhe
             const valA = (a[sortColumn as keyof TAccomodation] as string) || '';
             const valB = (b[sortColumn as keyof TAccomodation] as string) || '';
             return valA.localeCompare(valB) * direction;
@@ -75,9 +76,7 @@ const Accomodation = () => {
             setEditAccomodation(found)
             return found
         }
-        toast.success("Accomodation edited", {
-            description: "The accomodation has been successfully edited.",
-        })
+
     }
 
     const handleDelete = (id: number) => {
@@ -86,17 +85,15 @@ const Accomodation = () => {
     }
 
     const confirmDelete = async () => {
-        if (confirmId === null) return  
+        if (confirmId === null) return
         await deleteAccomodation(confirmId)
-        setConfirmId(null)  // ← chiude il modale
-        toast.success("Accomodation deleted", {
-            description: "The accomodation has been successfully removed.",
-        })
+        setConfirmId(null)
+
     }
-    
+
     return (
-        // Padding responsive: p-4 su mobile, p-8 su desktop
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+
+        <div className=" mx-auto p-4 md:p-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-1">
                     <h2 className="text-2xl font-bold text-gray-800">Accomodations </h2>
@@ -107,9 +104,14 @@ const Accomodation = () => {
 
                 {/* Search Bar & Mobile Sort */}
                 <div className="px-6 py-4 flex flex-col md:flex-row gap-4">
-                    <AccomodationAutocomplete
-                        onSelect={(accomodation) => accomodation.idAccomodation = accomodation.idAccomodation}
+                    <input
+                        type="text"
+                        placeholder="Search by name or ID"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
+
 
 
                     {/* Mobile Sort Dropdown (Visibile solo su mobile) */}
@@ -120,7 +122,7 @@ const Accomodation = () => {
                             value={sortColumn || ''}
                         >
                             <option value="">Sort by...</option>
-                            <option value="name">Name</option>
+                            <option value="accomodationName">Name</option>
                             <option value="price">Price</option>
                             <option value="nrooms">Rooms</option>
                         </select>
