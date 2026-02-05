@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
@@ -7,86 +8,86 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
-import { Field, FieldGroup } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
-import { useEffect, useState } from "react"
-import { type TReservation, useReservation, type TNewReservation } from "../context/reservation-context"
-import { useTenant } from "../context/tenant-context"
-import { useAccomodation } from "../context/accomodation-context"
-import { reservationSchema } from "./reservation-dialog"
+} from "@/components/ui/dialog";
+import { Field, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
+import { useReservation, type TReservation, type TNewReservation } from "../context/reservation-context";
+import { useTenant, type TTenant } from "../context/tenant-context";
+import { useAccomodation, type TAccomodation } from "../context/accomodation-context";
+import { reservationSchema } from "./reservation-dialog";
 
 
 type ReservationFormData = z.infer<typeof reservationSchema>;
 
 interface Props {
-    reservation: TReservation
-    open: boolean
-    onClose: () => void
+    reservation: TReservation;
+    open: boolean;
+    onClose: () => void;
 }
 
 function ReservationEditDialog({ reservation, open, onClose }: Props) {
-    const { updateReservation } = useReservation()
-    const { tenantData } = useTenant()
-    const { accomodationData } = useAccomodation()
-    const [searchTermAccomodation, setSearchTermAccomodation] = useState('');
-    const [searchTermTenant, setSearchTermTenant] = useState('');
+    const { updateReservation } = useReservation();
+    const { tenantData } = useTenant();
+    const { accomodationData } = useAccomodation();
 
-    const filteredDataTenant = tenantData.filter(item => {
-        if (searchTermTenant === '') {
-            return null;
-        }
-        const idTenanttoString = item.idTenant.toString();
-        return (
-            item.tenantName.toLowerCase().includes(searchTermTenant.toLowerCase()) ||
-            item.surname.toLowerCase().includes(searchTermTenant.toLowerCase()) ||
-            idTenanttoString.toLowerCase().includes(searchTermTenant.toLowerCase())
-        );
-    });
+    const [selectedTenant, setSelectedTenant] = useState<TTenant | null>(null);
+    const [selectedAccomodation, setSelectedAccomodation] = useState<TAccomodation | null>(null);
 
-    const filteredDataAccomodation = accomodationData.filter(item => {
-        if (searchTermAccomodation === '') {
-            return null;
-        }
-        const idAccomodationtoString = item.idAccomodation.toString();
-        return (
-            item.accomodationName.toLowerCase().includes(searchTermAccomodation.toLowerCase()) ||
-            idAccomodationtoString.toLowerCase().includes(searchTermAccomodation.toLowerCase())
-        );
-    });
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        reset,
-    } = useForm<ReservationFormData>({
+    const form = useForm<ReservationFormData>({
         resolver: zodResolver(reservationSchema),
         mode: "onChange",
-    })
+    });
 
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setValue } = form;
 
+    
     useEffect(() => {
         if (open && reservation) {
+            const tenant = tenantData.find(t => t.idTenant === reservation.idTenant) || null;
+            const accomodation = accomodationData.find(a => a.idAccomodation === reservation.idAccomodation) || null;
+
+            setSelectedTenant(tenant);
+            setSelectedAccomodation(accomodation);
+
             reset({
                 reservationStartDate: reservation.reservationStartDate,
                 reservationEndDate: reservation.reservationEndDate,
                 idTenant: reservation.idTenant,
                 idAccomodation: reservation.idAccomodation,
-            })
+            });
         }
-    }, [open, reservation, reset])
+    }, [open, reservation, tenantData, accomodationData, reset]);
 
     const onSubmit = async (formData: ReservationFormData) => {
-        await updateReservation(reservation.idReservation, formData)
-        toast.success("Reservation updated")
-        onClose()
-    }
+        if (!selectedTenant || !selectedAccomodation) {
+            toast.error("Please select a tenant and an accomodation.");
+            return;
+        }
+
+        const payload: TNewReservation = {
+            reservationStartDate: formData.reservationStartDate,
+            reservationEndDate: formData.reservationEndDate,
+            idTenant: selectedTenant.idTenant,
+            idAccomodation: selectedAccomodation.idAccomodation,
+        };
+
+        try {
+            await updateReservation(reservation.idReservation, payload);
+            toast.success("Reservation updated", {
+                description: `Booking for ${selectedTenant.tenantName} ${selectedTenant.surname} has been updated.`,
+            });
+            onClose(); 
+        } catch (error) {
+            console.error(error);
+            toast.error("Error updating reservation");
+        }
+    };
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -94,34 +95,37 @@ function ReservationEditDialog({ reservation, open, onClose }: Props) {
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogHeader>
                         <DialogTitle>Edit Reservation</DialogTitle>
-                        <DialogDescription className="mb-2">Update booking details.</DialogDescription>
+                        <DialogDescription className="mb-2">
+                            Update booking details.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <FieldGroup className="grid grid-cols-2 gap-4">
-                        {/* Select Tenant ed Accomodation come nel create */}
                         
 
                         <Field>
                             <Label>Start Date</Label>
                             <Input type="date" {...register("reservationStartDate")} />
+                            {errors.reservationStartDate && <p className="text-red-500 text-sm">{errors.reservationStartDate.message}</p>}
                         </Field>
 
                         <Field>
                             <Label>End Date</Label>
                             <Input type="date" {...register("reservationEndDate")} />
+                            {errors.reservationEndDate && <p className="text-red-500 text-sm">{errors.reservationEndDate.message}</p>}
                         </Field>
                     </FieldGroup>
 
                     <DialogFooter className="mt-4">
                         <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                        <Button type="submit" disabled={isSubmitting} className="bg-yellow-500 hover:bg-yellow-600">
+                        <Button type="submit" disabled={isSubmitting} className="bg-primary">
                             Save Changes
                         </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export default ReservationEditDialog;

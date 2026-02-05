@@ -21,14 +21,16 @@ import { useTenant } from "../context/tenant-context"
 import { useAccomodation } from "../context/accomodation-context"
 import { toast } from "sonner"
 import { useState } from "react"
+import TenantAutocomplete from "../tenant/autocomplete-tenant"
+import AccomodationAutocomplete from "../accomodation/autocomplete-accomodation"
 
 
 
 export const reservationSchema = z.object({
     reservationStartDate: z.string().min(1, "Start date is required"),
     reservationEndDate: z.string().min(1, "End date is required"),
-    idTenant: z.number({error: "Please select a Tenant"}).min(1, "Tenant is required"),
-    idAccomodation: z.number({error: "Please select an Accomodation"}).min(1, "Accomodation is required"),
+    idTenant: z.number({ error: "Please select a Tenant" }).min(1, "Tenant is required"),
+    idAccomodation: z.number({ error: "Please select an Accomodation" }).min(1, "Accomodation is required"),
 });
 
 export type ReservationFormData = z.infer<typeof reservationSchema>;
@@ -39,28 +41,31 @@ function ReservationDialog() {
     const { accomodationData } = useAccomodation();
     const [searchTermAccomodation, setSearchTermAccomodation] = useState('');
     const [searchTermTenant, setSearchTermTenant] = useState('');
+    const [open, setOpen] = useState(false);
 
-
+    const form = useForm<ReservationFormData>({
+        resolver: zodResolver(reservationSchema),
+        mode: "onChange",
+    })
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-        reset,
-    } = useForm<ReservationFormData>({
-        resolver: zodResolver(reservationSchema),
-        mode: "onChange",
-    })
+        reset
+    } = form
+
 
     const onSubmit = async (formData: ReservationFormData) => {
-        await addReservation(formData);
-        toast.success("Reservation created", {
-            description: "The booking has been successfully recorded.",
-        })
-        reset();
+        try {
+            await addReservation(formData);
+            setOpen(false); // chiudi il dialog
+        } catch (error) {
+            console.error("Errore durante il salvataggio:", error);
+        }
     }
-    
+
     const filteredDataTenant = tenantData.filter(item => {
-        
+
         if (searchTermTenant === '') {
             return null;
         }
@@ -86,7 +91,7 @@ function ReservationDialog() {
     return (
         <Dialog>
             <DialogTrigger render={
-                <Button className="bg-green-500 hover:bg-green-600">
+                <Button className="bg-primary">
                     <Plus /> New Reservation
                 </Button>}>
             </DialogTrigger>
@@ -101,50 +106,31 @@ function ReservationDialog() {
                     </DialogHeader>
 
                     <FieldGroup className="grid grid-cols-2 gap-4">
-                        <Field className="col-span-2">
-                            <Label>Tenant</Label>
-                            <input
-                                type="text"
-                                placeholder="Search by name or ID"
-                                className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={searchTermTenant}
-                                onChange={(e) => setSearchTermTenant(e.target.value)}
+                        <Field>
+                            <Label>Tenant ID</Label>
+                            <TenantAutocomplete
+                                onSelect={(tenant) => {
+                                    form.setValue("idTenant", tenant.idTenant)
+                                }}
                             />
-                            <select
-                                className="border border-black"
-                                {...register("idTenant", { valueAsNumber: true })}
-                            >
-                                <option value="">-- Select a Tenant --</option>
-                                {filteredDataTenant.map(tenant => (
-                                    <option key={tenant.idTenant} value={tenant.idTenant}>
-                                        {tenant.tenantName} {tenant.surname} (ID: {tenant.idTenant})
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.idTenant&& <p className="text-red-500 text-sm">{errors.idTenant.message}</p>}
+                            <input type="hidden" {...register("idTenant", { valueAsNumber: true })} />
+
+                            {errors.idTenant && <p className="text-red-500">{errors.idTenant.message}</p>}
+
+
                         </Field>
 
-                        <Field className="col-span-2">
-                            <Label>Accomodation</Label>
-                            <input
-                                type="text"
-                                placeholder="Search by name or ID"
-                                className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={searchTermAccomodation}
-                                onChange={(e) => setSearchTermAccomodation(e.target.value)}
+                        <Field>
+                            <Label>Accomodation ID</Label>
+                            <AccomodationAutocomplete
+                                onSelect={(accomodation) => {
+                                    form.setValue("idAccomodation", accomodation.idAccomodation)
+                                }}
                             />
-                            <select
-                                {...register("idAccomodation", { valueAsNumber: true })}
-                                className="border border-black"
-                            >
-                                <option value="">-- Select an Accomodation --</option>
-                                {filteredDataAccomodation.map(accomodation => (
-                                    <option key={accomodation.idAccomodation} value={accomodation.idAccomodation}>
-                                        {accomodation.accomodationName} (ID: {accomodation.idAccomodation})
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.idAccomodation && <p className="text-red-500 text-sm">{errors.idAccomodation.message}</p>}
+                            <input type="hidden" {...register("idAccomodation", { valueAsNumber: true })} />
+
+                            {errors.idAccomodation && <p className="text-red-500">{errors.idAccomodation.message}</p>}
+
                         </Field>
 
                         <Field>
@@ -162,7 +148,7 @@ function ReservationDialog() {
 
                     <DialogFooter className="mt-4">
                         <DialogClose render={<Button variant="outline">Cancel</Button>} />
-                        <Button type="submit" disabled={isSubmitting} className="bg-green-500 hover:bg-green-600">
+                        <Button type="submit" disabled={isSubmitting} className="bg-primary">
                             Save
                         </Button>
                     </DialogFooter>

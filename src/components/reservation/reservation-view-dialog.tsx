@@ -22,7 +22,7 @@ const ReservationViewDialog = ({ reservation, open, onClose }: Props) => {
                     <p><b>End Date:</b> {reservation.reservationEndDate}</p>
                 </div>
                 <div className="flex justify-end mt-6">
-                    <button onClick={onClose} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <button onClick={onClose} className="px-4 py-2 bg-primary text-white rounded-lg ">
                         Close
                     </button>
                 </div>

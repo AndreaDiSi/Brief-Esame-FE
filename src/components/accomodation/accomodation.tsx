@@ -5,7 +5,14 @@ import AccomodationDialog from './accomodation-dialog';
 import { toast } from "sonner";
 import AccomodationEditDialog from './accomodation-edit-dialog';
 import AccomodationViewDialog from './accomodation-view-dialog';
-
+import { Button } from "@/components/ui/button"
+import { Eye, Pen, Trash } from 'lucide-react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import AccomodationAutocomplete from './autocomplete-accomodation';
 
 const Accomodation = () => {
     const { accomodationData, addAccomodation, deleteAccomodation } = useAccomodation();
@@ -52,7 +59,7 @@ const Accomodation = () => {
         return (valueA - valueB) * direction;
     });
 
-    
+
 
     const handleView = (id: number) => {
         const found = accomodationData.find(item => item.idAccomodation === id);
@@ -79,14 +86,14 @@ const Accomodation = () => {
     }
 
     const confirmDelete = async () => {
-        if (confirmId === null) return
+        if (confirmId === null) return  
         await deleteAccomodation(confirmId)
         setConfirmId(null)  // ← chiude il modale
         toast.success("Accomodation deleted", {
             description: "The accomodation has been successfully removed.",
         })
     }
-
+    
     return (
         // Padding responsive: p-4 su mobile, p-8 su desktop
         <div className="max-w-7xl mx-auto p-4 md:p-8">
@@ -100,13 +107,10 @@ const Accomodation = () => {
 
                 {/* Search Bar & Mobile Sort */}
                 <div className="px-6 py-4 flex flex-col md:flex-row gap-4">
-                    <input
-                        type="text"
-                        placeholder="Search by name or address..."
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                    <AccomodationAutocomplete
+                        onSelect={(accomodation) => accomodation.idAccomodation = accomodation.idAccomodation}
                     />
+
 
                     {/* Mobile Sort Dropdown (Visibile solo su mobile) */}
                     <div className="md:hidden">
@@ -124,7 +128,7 @@ const Accomodation = () => {
                 </div>
 
                 {/* --- MOBILE VIEW: CARDS --- */}
-                <div className="block md:hidden px-6 pb-4">
+                <div className="block lg:hidden px-6 pb-4">
                     {sortedDataAccomodation.length > 0 ? (
                         <div className="space-y-4 grid grid-cols-1 mx-auto sm:grid-cols-2 gap-2">
                             {sortedDataAccomodation.map((item) => (
@@ -153,9 +157,33 @@ const Accomodation = () => {
                                     </div>
 
                                     <div className="flex justify-end space-x-3 mt-3 pt-3 border-t border-gray-100">
-                                        <button onClick={() => handleView(item.idAccomodation)} className="bg-blue-600 hover:bg-blue-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">View</button>
-                                        <button onClick={() => handleEdit(item.idAccomodation)} className="bg-yellow-600 hover:bg-yellow-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Edit</button>
-                                        <button onClick={() => handleDelete(item.idAccomodation)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Delete</button>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleView(item.idAccomodation)} variant={"outline"}><Eye /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>View</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleEdit(item.idAccomodation)} variant={"outline"}><Pen /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Edit</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleDelete(item.idAccomodation)} variant={"outline"}><Trash /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Delete</p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             ))}
@@ -166,7 +194,7 @@ const Accomodation = () => {
                 </div>
 
                 {/* --- DESKTOP VIEW: TABLE (Visibile sopra 'md') --- */}
-                <div className="hidden md:block overflow-x-auto">
+                <div className="hidden lg:flex overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-100 border-b border-gray-200">
                             <tr>
@@ -207,10 +235,34 @@ const Accomodation = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nbedPlaces}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.floor}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">€{item.price}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button onClick={() => handleView(item.idAccomodation)} className="bg-blue-600 hover:bg-blue-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">View</button>
-                                            <button onClick={() => handleEdit(item.idAccomodation)} className="bg-yellow-600 hover:bg-yellow-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Edit</button>
-                                            <button onClick={() => handleDelete(item.idAccomodation)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Delete</button>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-4">
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleView(item.idAccomodation)} variant={"outline"}><Eye /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>View</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleEdit(item.idAccomodation)} variant={"outline"}><Pen /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Edit</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleDelete(item.idAccomodation)} variant={"outline"}><Trash /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Delete</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </td>
                                     </tr>
                                 ))

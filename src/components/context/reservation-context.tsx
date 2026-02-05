@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type TReservation = {
     idReservation: number;
@@ -10,69 +10,92 @@ export type TReservation = {
 
 export type TNewReservation = Omit<TReservation, "idReservation">;
 
-interface ReservationContextType {
+interface ReservationProviderProps {
+    children: React.ReactNode;
+}
+
+export interface ReservationContextType {
     reservations: TReservation[];
     addReservation: (reservation: TNewReservation) => Promise<void>;
     updateReservation: (id: number, reservation: TNewReservation) => Promise<void>;
-    deleteReservation: (id: number) => Promise<boolean>;
+    deleteReservation: (id: number) => Promise<void>;
     getLastReservation: (idTenant: number) => Promise<TReservation | null>;
 }
 
-const ReservationContext = createContext<ReservationContextType | undefined>(undefined);
+const API_URL = import.meta.env.VITE_API_URL;
+
+const ReservationContext = createContext<ReservationContextType | null>(null);
 
 export const useReservation = () => {
     const context = useContext(ReservationContext);
-    if (!context) throw new Error("useReservation must be used within ReservationProvider");
+    if (!context) throw new Error("useReservation must be used within a ReservationProvider");
     return context;
 };
 
-export const ReservationProvider = ({ children }: { children: React.ReactNode }) => {
+export const ReservationProvider = ({ children }: ReservationProviderProps) => {
     const [reservations, setReservations] = useState<TReservation[]>([]);
 
-    const fetchReservations = async () => {
-        try {
-            const res = await fetch("http://localhost:8080/api/v1/reservations");
-            const data = await res.json();
-            setReservations(data);
-        } catch (error) {
-            console.error("Error fetching reservations:", error);
-        }
-    };
-
-    useEffect(() => { fetchReservations(); }, []);
+    useEffect(() => {
+        const fetchReservations = async () => {
+            try {
+                const res = await fetch(`${API_URL}/reservations`);
+                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+                const json: TReservation[] = await res.json();
+                setReservations(json);
+            } catch (error) {
+                console.error("Error fetching reservations:", error);
+            }
+        };
+        fetchReservations();
+    }, []);
 
     const addReservation = async (reservation: TNewReservation) => {
-        await fetch("http://localhost:8080/api/v1/reservations", {
-            method: "POST",
-            body: JSON.stringify(reservation),
-            headers: { "Content-Type": "application/json" }
-        });
-        await fetchReservations();
+        try {
+            const res = await fetch(`${API_URL}/reservations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(reservation),
+            });
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            const newReservation: TReservation = await res.json();
+            setReservations(prev => [newReservation, ...prev]);
+        } catch (error) {
+            console.error("Error adding reservation:", error);
+        }
     };
 
     const updateReservation = async (id: number, reservation: TNewReservation) => {
-        await fetch(`http://localhost:8080/api/v1/reservations/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(reservation),
-            headers: { "Content-Type": "application/json" }
-        });
-        await fetchReservations();
+        try {
+            const res = await fetch(`${API_URL}/reservations/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(reservation),
+            });
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            const updated: TReservation = await res.json();
+            setReservations(prev => prev.map(r => r.idReservation === id ? updated : r));
+            
+        } catch (error) {
+            console.error("Error updating reservation:", error);
+        }
     };
 
     const deleteReservation = async (id: number) => {
-        const res = await fetch(`http://localhost:8080/api/v1/reservations/${id}`, { method: "DELETE" });
-        if (res.ok) {
-            await fetchReservations();
-            return true;
+        try {
+            const res = await fetch(`${API_URL}/reservations/${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            setReservations(prev => prev.filter(r => r.idReservation !== id));
+        } catch (error) {
+            console.error("Error deleting reservation:", error);
         }
-        return false;
     };
+
     const getLastReservation = async (idTenant: number): Promise<TReservation | null> => {
         try {
-            const res = await fetch(`http://localhost:8080/api/v1/tenants/${idTenant}/last-reservation`);
+            const res = await fetch(`${API_URL}/tenants/${idTenant}/last-reservation`);
             if (!res.ok) {
                 if (res.status === 404) return null;
-                throw new Error("Errore nel recupero dell'ultima prenotazione");
+                throw new Error(`HTTP error: ${res.status}`);
             }
             return await res.json();
         } catch (error) {
@@ -82,9 +105,12 @@ export const ReservationProvider = ({ children }: { children: React.ReactNode })
     };
 
     return (
-        <ReservationContext.Provider value={{ reservations, addReservation, updateReservation, deleteReservation, getLastReservation }}>
+        <ReservationContext.Provider
+            value={{ reservations, addReservation, updateReservation, deleteReservation, getLastReservation }}
+        >
             {children}
         </ReservationContext.Provider>
     );
 };
 
+export default ReservationContext;

@@ -3,16 +3,23 @@ import { useReservation } from '../context/reservation-context'
 import type { TReservation } from '../context/reservation-context'
 import { useTenant } from '../context/tenant-context'
 import { useAccomodation } from '../context/accomodation-context'
-import ReservationDialog from './reservation-dialog' 
+import ReservationDialog from './reservation-dialog'
 import { toast } from "sonner"
 import ReservationEditDialog from './reservation-edit-dialog'
 import ReservationViewDialog from './reservation-view-dialog'
+import { Button } from "@/components/ui/button"
+import { Eye, Pen, Trash } from 'lucide-react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const Reservation = () => {
     const { reservations, deleteReservation } = useReservation()
     const { tenantData } = useTenant()
     const { accomodationData } = useAccomodation()
-    
+
     const [searchTerm, setSearchTerm] = useState('')
     const [sortColumn, setSortColumn] = useState<string | null>(null)
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
@@ -45,7 +52,7 @@ const Reservation = () => {
         getAccName(item.idAccomodation).toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.reservationStartDate.includes(searchTerm) ||
         item.reservationEndDate.includes(searchTerm) ||
-        item.idReservation.toString().includes(searchTerm) 
+        item.idReservation.toString().includes(searchTerm)
     )
 
     const sortedData = [...filteredData].sort((a, b) => {
@@ -94,7 +101,7 @@ const Reservation = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <div className="mx-auto p-4 md:p-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-1">
                     <h2 className="text-2xl font-bold text-gray-800">Reservations</h2>
@@ -144,9 +151,33 @@ const Reservation = () => {
                                     </div>
 
                                     <div className="flex justify-end space-x-3 mt-3 pt-3 border-t border-gray-100">
-                                        <button onClick={() => handleView(item.idReservation)} className="bg-blue-600 hover:bg-blue-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">View</button>
-                                        <button onClick={() => handleEdit(item.idReservation)} className="bg-yellow-600 hover:bg-yellow-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Edit</button>
-                                        <button onClick={() => handleDelete(item.idReservation)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Delete</button>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleView(item.idReservation)} variant={"outline"}><Eye /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>View</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleEdit(item.idReservation)} variant={"outline"}><Pen /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Edit</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleDelete(item.idReservation)} variant={"outline"}><Trash /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Delete</p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             ))}
@@ -190,10 +221,35 @@ const Reservation = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{getAccName(item.idAccomodation)}</td>
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.reservationStartDate}</td>
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.reservationEndDate}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button onClick={() => handleView(item.idReservation)} className="bg-blue-600 hover:bg-blue-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">View</button>
-                                            <button onClick={() => handleEdit(item.idReservation)} className="bg-yellow-600 hover:bg-yellow-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Edit</button>
-                                            <button onClick={() => handleDelete(item.idReservation)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Delete</button>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-4">
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleView(item.idReservation)} variant={"outline"}><Eye /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>View</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleEdit(item.idReservation)} variant={"outline"}><Pen /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Edit</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleDelete(item.idReservation)} variant={"outline"}><Trash /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Delete</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+
                                         </td>
                                     </tr>
                                 ))

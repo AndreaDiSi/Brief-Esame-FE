@@ -64,12 +64,13 @@ function TenantDialog() {
         })
         
         reset();
+        
     }
 
     return (
         <Dialog>
             <DialogTrigger render={
-                <Button className="bg-green-500 hover:bg-green-600">
+                <Button className="bg-primary">
                     <Plus /> New Tenant
                 </Button>}>
             </DialogTrigger>
@@ -122,7 +123,7 @@ function TenantDialog() {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-green-500 hover:bg-green-600"
+                            className="bg-primary"
                         >
                             {isSubmitting ? "Saving..." : "Save Tenant"}
                         </Button>

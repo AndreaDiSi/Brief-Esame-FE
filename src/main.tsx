@@ -8,6 +8,7 @@ import { HostProvider } from "./components/context/host-context.tsx"
 import { TenantProvider } from "./components/context/tenant-context.tsx"
 import { ReservationProvider } from "./components/context/reservation-context.tsx"
 import { FeedbackProvider } from "./components/context/feedback-context.tsx"
+import { TooltipProvider } from "@/components/ui/tooltip.tsx"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")!).render(
         <TenantProvider>
           <ReservationProvider>
             <FeedbackProvider>
-              <App />
+              <TooltipProvider>
+                <App />
+              </TooltipProvider>
             </FeedbackProvider>
           </ReservationProvider>
         </TenantProvider>

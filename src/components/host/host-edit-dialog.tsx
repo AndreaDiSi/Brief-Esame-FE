@@ -59,7 +59,7 @@ function HostEditDialog({ host, open, onClose }: HostEditDialogProps) {
                 surname: host.surname,
                 email: host.email,
                 hostAddress: host.hostAddress,
-                isSuperhost: host.isSuperhost,
+                isSuperhost: host.superhost,
             })
         }
     }, [open, host, reset])
@@ -70,7 +70,7 @@ function HostEditDialog({ host, open, onClose }: HostEditDialogProps) {
             surname: formData.surname,
             email: formData.email,
             hostAddress: formData.hostAddress,
-            isSuperhost: formData.isSuperhost,
+            superhost: formData.isSuperhost,
         }
 
         console.log("Sending payload:", payload)
@@ -124,7 +124,7 @@ function HostEditDialog({ host, open, onClose }: HostEditDialogProps) {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-yellow-500 hover:bg-yellow-600"
+                            className="bg-primary"
                         >
                             Save Changes
                         </Button>

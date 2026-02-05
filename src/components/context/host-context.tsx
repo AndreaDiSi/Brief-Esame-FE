@@ -6,7 +6,7 @@ export type THost = {
     surname: string;
     email: string;
     hostAddress: string;
-    isSuperhost: boolean;
+    superhost: boolean;
 }
 
 export type TNewHost = Omit<THost, "idHost">;
@@ -70,7 +70,7 @@ export const HostProvider = ({ children }: HostProviderProps) => {
             });
             if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
             const newHostResponse: THost = await res.json();
-            setData(prev => [...prev, newHostResponse]);
+            setData(prev => [newHostResponse, ...prev]);
         } catch (error) {
             console.error("Error adding host:", error);
         }

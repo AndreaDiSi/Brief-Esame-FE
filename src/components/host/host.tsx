@@ -5,6 +5,13 @@ import HostDialog from './host-dialog'
 import { toast } from "sonner"
 import HostEditDialog from './host-edit-dialog'
 import HostViewDialog from './host-view-dialog.tsx'
+import { Button } from "@/components/ui/button"
+import { Eye, Pen, Trash } from 'lucide-react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const Host = () => {
     const { data, deleteHost } = useHost()
@@ -14,7 +21,7 @@ const Host = () => {
     const [confirmId, setConfirmId] = useState<number | null>(null)
     const [editHost, setEditHost] = useState<THost | null>(null)
     const [viewHost, setViewHost] = useState<THost | null>(null)
-
+    
     const handleSort = (column: string) => {
         if (sortColumn === column) {
             setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
@@ -27,9 +34,11 @@ const Host = () => {
     const filteredData = data.filter(item =>
         item.hostName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.surname.toLowerCase().includes(searchTerm.toLowerCase())
+        item.surname.toLowerCase().includes(searchTerm.toLowerCase()) 
+        
+        
     )
-
+    
     const sortedData = [...filteredData].sort((a, b) => {
         if (!sortColumn) return 0
 
@@ -37,7 +46,7 @@ const Host = () => {
 
         // ordinamento boolean
         if (sortColumn === 'isSuperhost') {
-            return ((a.isSuperhost === b.isSuperhost) ? 0 : a.isSuperhost ? 1 : -1) * direction
+            return ((a.superhost === b.superhost) ? 0 : a.superhost ? 1 : -1) * direction
         }
 
         // ordinamento stringhe
@@ -52,7 +61,7 @@ const Host = () => {
         const valueB = b[sortColumn as keyof THost] as number
         return (valueA - valueB) * direction
     })
-
+    console.log(sortedData)
     const handleView = (id: number) => {
         const found = data.find(item => item.idHost === id)
         if (found) {
@@ -124,7 +133,7 @@ const Host = () => {
                                             <h3 className="font-bold text-lg text-gray-900">{item.hostName} {item.surname}</h3>
                                             <p className="text-sm text-gray-500">{item.email}</p>
                                         </div>
-                                        {item.isSuperhost && (
+                                        {item.superhost && (
                                             <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                                 Superhost
                                             </span>
@@ -136,9 +145,33 @@ const Host = () => {
                                     </div>
 
                                     <div className="flex justify-end space-x-3 mt-3 pt-3 border-t border-gray-100">
-                                        <button onClick={() => handleView(item.idHost)} className="bg-blue-600 hover:bg-blue-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">View</button>
-                                        <button onClick={() => handleEdit(item.idHost)} className="bg-yellow-600 hover:bg-yellow-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Edit</button>
-                                        <button onClick={() => handleDelete(item.idHost)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Delete</button>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleView(item.idHost)} variant={"outline"}><Eye /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>View</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleEdit(item.idHost)} variant={"outline"}><Pen /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Edit</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleDelete(item.idHost)} variant={"outline"}><Trash /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Delete</p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             ))}
@@ -186,7 +219,7 @@ const Host = () => {
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.email}</td>
                                         <td className="px-6 py-4 text-sm text-gray-600">{item.hostAddress}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            {item.isSuperhost ? (
+                                            {item.superhost ? (
                                                 <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                                     Yes
                                                 </span>
@@ -196,10 +229,34 @@ const Host = () => {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button onClick={() => handleView(item.idHost)} className="bg-blue-600 hover:bg-blue-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">View</button>
-                                            <button onClick={() => handleEdit(item.idHost)} className="bg-yellow-600 hover:bg-yellow-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Edit</button>
-                                            <button onClick={() => handleDelete(item.idHost)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Delete</button>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-4">
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleView(item.idHost)} variant={"outline"}><Eye /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>View</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleEdit(item.idHost)} variant={"outline"}><Pen /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Edit</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleDelete(item.idHost)} variant={"outline"}><Trash /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Delete</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </td>
                                     </tr>
                                 ))

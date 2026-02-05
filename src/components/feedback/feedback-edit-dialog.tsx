@@ -133,7 +133,7 @@ function FeedbackEditDialog({ feedback, open, onClose }: FeedbackEditDialogProps
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                            className="bg-primary text-white"
                         >
                             {isSubmitting ? "Updating..." : "Save Changes"}
                         </Button>

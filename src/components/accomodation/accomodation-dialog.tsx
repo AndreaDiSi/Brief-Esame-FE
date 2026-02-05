@@ -21,6 +21,7 @@ import { useAccomodation, type TNewAccomodation } from "../context/accomodation-
 import { toast } from "sonner"
 import { useHost, type THost } from "../context/host-context"
 import { useState } from "react"
+import HostAutocomplete from "../host/autocomplete-host"
 
 export const accomodationSchema = z.object({
     accomodationName: z.string().min(1, "Name is required").max(30, "Name is too long"),
@@ -28,10 +29,10 @@ export const accomodationSchema = z.object({
     nBedPlaces: z.number({ error: "There must be at least one bed place" }).min(1, "There must be at least one bed place"),
     hostId: z.number({ error: "Host ID is required" }).min(1, "Host ID must be at least 1"),
     address: z.string().min(6, "Address is required").max(100, "Address is too long"),
-    floor: z.number().min(0, "Floor must be 0 or higher"),
+    floor: z.number({ error: "Floor must be a number" }).min(0, "Floor must be 0 or higher"),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
-    price: z.number({error: "This field must be a number"}).min(10, "Price must be at least 10").max(50000, "Price must be at most 50000"),
+    price: z.number({ error: "This field must be a number" }).min(10, "Price must be at least 10").max(50000, "Price must be at most 50000"),
 }).refine(
     (data) => new Date(data.endDate) > new Date(data.startDate),
     {
@@ -71,10 +72,11 @@ function AccomodationDialog() {
             price: formData.price,
         }
 
-       
+
 
         await addAccomodation(payload);
         reset();
+        
         toast.success("Accomodation created", {
             description: `${formData.accomodationName} ${formData.address} has been successfully added.`,
         })
@@ -85,7 +87,7 @@ function AccomodationDialog() {
 
     const { data } = useHost();
     const [searchTerm, setSearchTerm] = useState('');
-    
+
 
 
     const filteredDataHost = data.filter(item => {
@@ -105,7 +107,7 @@ function AccomodationDialog() {
     return (
         <Dialog>
             <DialogTrigger render={
-                <Button className="bg-green-500 hover:bg-green-600">
+                <Button className="bg-primary">
                     <Plus /> New Accomodation
                 </Button>}>
             </DialogTrigger>
@@ -134,26 +136,17 @@ function AccomodationDialog() {
 
                         <Field>
                             <Label>Host ID</Label>
+                            <HostAutocomplete
+                                onSelect={(host) => {
+                                    
+                                    form.setValue("hostId", host.idHost)}}
 
-                            <input
-                                type="text"
-                                placeholder="Search by name or ID"
-                                className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <select
-                                className="border border-black"
-                                {...register("hostId", { valueAsNumber: true })}
-                            >
-                                <option value="">-- Select an Host --</option>
-                                {filteredDataHost.map(host => (
-                                    <option key={host.idHost} value={host.idHost}>
-                                        {host.hostName} {host.surname} (ID: {host.idHost})
-                                    </option>
-                                ))}
-                            </select>
+                            <input type="hidden" {...register("hostId", { valueAsNumber: true })} />
+
                             {errors.hostId && <p className="text-red-500">{errors.hostId.message}</p>}
+
+
                         </Field>
 
                         <Field>
@@ -188,7 +181,7 @@ function AccomodationDialog() {
 
                         <Field>
                             <Label>Price</Label>
-                            <Input type="number" {...register("price", { valueAsNumber: true })} min={10} value={10}  />
+                            <Input type="number" {...register("price", { valueAsNumber: true })} min={10} value={10} />
                             {errors.price && <p className="text-red-500">{errors.price.message}</p>}
                         </Field>
                     </FieldGroup>
@@ -198,7 +191,7 @@ function AccomodationDialog() {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-green-500 hover:bg-green-600"
+                            className="bg-primary"
                         >
                             Save
                         </Button>

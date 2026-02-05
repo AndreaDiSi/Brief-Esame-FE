@@ -84,10 +84,10 @@ export const AccomodationProvider = ({
 
             if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 
-            const newAccomodationResponse = await res.json();
-
-            setData(prev => [...prev, newAccomodationResponse]);
-
+            const newAccomodationResponse:TAccomodation = await res.json();
+            console.log(newAccomodationResponse)
+            setData(prev => [newAccomodationResponse, ...prev]);
+            
         } catch (error) {
             console.error("Error adding accomodation:", error);
         }
@@ -96,7 +96,7 @@ export const AccomodationProvider = ({
     const deleteAccomodation = async (id: number) => {
         const backup = accomodationData;
 
-        // optimistic remove
+        
         setData(prev =>
             prev.filter(item => item.idAccomodation !== id)
         );

@@ -83,7 +83,7 @@ function FeedbackDialog() {
     return (
         <Dialog>
             <DialogTrigger render={
-                <Button className="bg-green-500 hover:bg-green-600">
+                <Button className="bg-primary">
                     <Plus /> New Feedback
                 </Button>}>
             </DialogTrigger>
@@ -162,7 +162,7 @@ function FeedbackDialog() {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-green-500 hover:bg-green-600"
+                            className="bg-primary"
                         >
                             {isSubmitting ? "Submitting..." : "Submit Feedback"}
                         </Button>

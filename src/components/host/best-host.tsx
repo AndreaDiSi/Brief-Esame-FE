@@ -53,7 +53,7 @@ const BestHost = () => {
                                 <div className="bg-white border-2 border-amber-100 rounded-2xl overflow-hidden shadow-xl">
                                     <div className="bg-amber-500 p-4 flex justify-between items-center">
                                         <span className="text-white text-xs font-bold uppercase tracking-wider">
-                                            {data.isSuperhost ? " Superhost" : "Top Rated"}
+                                            {data.superhost ? " Superhost" : "Top Rated"}
                                         </span>
                                         <div className="flex text-yellow-200"><Star size={14} fill="currentColor" /></div>
                                     </div>
@@ -69,7 +69,7 @@ const BestHost = () => {
                                                     <Mail size={14} />
                                                     <span className="text-sm">{data.email}</span>
                                                 </div>
-                                                {data.isSuperhost && (
+                                                {data.superhost && (
                                                     <div className="flex items-center gap-1 text-amber-600 mt-1 font-semibold">
                                                         <ShieldCheck size={14} />
                                                         <span className="text-xs">Verified Superhost</span>

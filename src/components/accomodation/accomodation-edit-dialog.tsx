@@ -161,7 +161,7 @@ function AccomodationEditDialog({ accomodation, open, onClose }: AccomodationEdi
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-yellow-500 hover:bg-yellow-600"
+                            className="bg-primary"
                         >
                             Save Changes
                         </Button>

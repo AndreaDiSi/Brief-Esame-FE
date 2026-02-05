@@ -56,7 +56,7 @@ function HostDialog() {
             surname: formData.surname,
             email: formData.email,
             hostAddress: formData.hostAddress,
-            isSuperhost: formData.isSuperhost,
+            superhost: formData.isSuperhost,
         }
 
         console.log("Sending payload:", payload);
@@ -71,7 +71,7 @@ function HostDialog() {
     return (
         <Dialog>
             <DialogTrigger render={
-                <Button className="bg-green-500 hover:bg-green-600">
+                <Button className="bg-primary">
                     <Plus /> New Host
                 </Button>}>
             </DialogTrigger>
@@ -117,7 +117,7 @@ function HostDialog() {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-green-500 hover:bg-green-600"
+                            className="bg-primary"
                         >
                             Save
                         </Button>

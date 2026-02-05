@@ -1,9 +1,9 @@
-import React from 'react'
+
 import BestAccomodation from './accomodation/best-accomodation'
 import { LastReservation} from './reservation/last-reservation'
 import BestHost from './host/best-host'
 import SuperHost from './host/superhost'
-import TopFiveBestHost from './host/top-five-best-host'
+import TopTenants from './tenant/top-five-tenant'
 
 const Homepage = () => {
   return (
@@ -14,7 +14,7 @@ const Homepage = () => {
         <LastReservation />
         <BestHost/>
         <SuperHost/>
-        <TopFiveBestHost/>
+        <TopTenants/>
       </div>
     </div>
   )

@@ -21,32 +21,32 @@ const items = [
     {
         title: "Home",
         url: "/",
-        
+
     },
     {
         title: "Accomodations",
         url: "/accomodations",
-       
+
     },
     {
         title: "Hosts",
         url: "/hosts",
-       
+
     },
     {
         title: "Tenants",
         url: "/tenants",
-        
+
     },
     {
         title: "Reservations",
         url: "/reservations",
-        
+
     },
     {
         title: "Feedbacks",
         url: "/feedbacks",
-        
+
     },
 ]
 
@@ -62,8 +62,8 @@ function Layout() {
                             <SidebarMenu>
                                 {items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton render={<Link to={item.url} />}  className="flex gap-4">
-                                            
+                                        <SidebarMenuButton render={<Link to={item.url} />} className="flex gap-4">
+
                                             <span>{item.title}</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
@@ -73,13 +73,13 @@ function Layout() {
                     </SidebarGroup>
                 </SidebarContent>
             </Sidebar>
-            <main>
+            <main className="flex">
                 <SidebarTrigger />
-
+                <div className="flex">
+                    <Outlet />
+                </div>
             </main>
-            <div className="p-1">
-                <Outlet />
-            </div>
+
 
 
         </SidebarProvider>

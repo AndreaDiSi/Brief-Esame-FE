@@ -6,7 +6,13 @@ import FeedbackDialog from "./feedback-dialog"
 import FeedbackEditDialog from "./feedback-edit-dialog"
 import FeedbackViewDialog from "./feedback-view-dialog"
 
-
+import { Button } from "@/components/ui/button"
+import { Eye, Pen, Trash } from 'lucide-react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 const Feedback = () => {
 
     const { feedbackData, deleteFeedback } = useFeedback()
@@ -128,9 +134,33 @@ const Feedback = () => {
                                     </div>
 
                                     <div className="flex justify-end space-x-3 mt-3 pt-3 border-t border-gray-100">
-                                        <button onClick={() => handleView(item.idFeed)} className="bg-blue-600 hover:bg-blue-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">View</button>
-                                        <button onClick={() => handleEdit(item.idFeed)} className="bg-yellow-600 hover:bg-yellow-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Edit</button>
-                                        <button onClick={() => handleDelete(item.idFeed)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white text-sm px-2 hover:cursor-pointer">Delete</button>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleView(item.idFeed)} variant={"outline"}><Eye /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>View</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleEdit(item.idFeed)} variant={"outline"}><Pen /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Edit</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger render={
+                                                <Button onClick={() => handleDelete(item.idFeed)} variant={"outline"}><Trash /></Button>
+                                            }>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Delete</p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             ))}
@@ -174,10 +204,34 @@ const Feedback = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600">ID: {item.idReservation}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <button onClick={() => handleView(item.idFeed)} className="bg-blue-600 hover:bg-blue-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">View</button>
-                                            <button onClick={() => handleEdit(item.idFeed)} className="bg-yellow-600 hover:bg-yellow-800 mr-3 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Edit</button>
-                                            <button onClick={() => handleDelete(item.idFeed)} className="bg-red-600 hover:bg-red-800 rounded-lg py-0.5 text-white px-2 hover:cursor-pointer">Delete</button>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-4">
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleView(item.idFeed)} variant={"outline"}><Eye /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>View</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleEdit(item.idFeed)} variant={"outline"}><Pen /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Edit</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger render={
+                                                    <Button onClick={() => handleDelete(item.idFeed)} variant={"outline"}><Trash /></Button>
+                                                }>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Delete</p>
+                                                </TooltipContent>
+                                            </Tooltip>
                                         </td>
                                     </tr>
                                 ))

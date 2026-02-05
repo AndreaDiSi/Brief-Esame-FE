@@ -8,7 +8,6 @@ export type TTenant = {
     tenantAddress: string;
 }
 
-
 export type TNewTenant = Omit<TTenant, "idTenant">;
 
 interface TenantProviderProps {
@@ -20,6 +19,7 @@ export interface TenantContextType {
     addTenant: (newTenant: TNewTenant) => Promise<void>;
     deleteTenant: (id: number) => Promise<void>;
     updateTenant: (id: number, updated: TNewTenant) => Promise<void>;
+    fetchTopFiveTenants: () => Promise<TTenant[]>;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -61,8 +61,10 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
                 body: JSON.stringify(newTenant),
             });
             if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            
             const newTenantResponse: TTenant = await res.json();
-            setData(prev => [...prev, newTenantResponse]);
+            setData(prev => [newTenantResponse, ...prev]);
+
         } catch (error) {
             console.error("Error adding tenant:", error);
         }
@@ -99,8 +101,14 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
         }
     }
 
+    const fetchTopFiveTenants = async () => {
+        const res = await fetch(`${API_URL}/tenants/topfivetenants`);
+        if (!res.ok) throw new Error("Error loading top five tenants");
+        return res.json();
+    };
+
     return (
-        <TenantContext.Provider value={{ tenantData, addTenant, deleteTenant, updateTenant }}>
+        <TenantContext.Provider value={{ tenantData, addTenant, deleteTenant, updateTenant, fetchTopFiveTenants }}>
             {children}
         </TenantContext.Provider>
     );
